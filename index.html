@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير بيانات JSON</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --secondary: #00b894;
+            --dark: #f5f6fa;
+            --light: #ffffff;
+            --danger: #ff7675;
+            --warning: #ffeaa7;
+            --accent: #fdcb6e;
+            --panel-bg: #f1f2f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0eaff 0%, #f8fffa 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 10px;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            background-color: var(--panel-bg);
+            border-radius: 18px;
+            box-shadow: 0 6px 32px rgba(108,99,255,0.10), 0 1.5px 8px rgba(0,184,148,0.07);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            padding: 28px 10px 18px 10px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        header h1 {
+            font-size: 2.1rem;
+            margin-bottom: 7px;
+            gap: 8px;
+            color: #fff;
+        }
+        
+        header h1 i {
+            color: var(--accent);
+        }
+        
+        header p {
+            font-size: 1.08rem;
+            opacity: 0.92;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #f5f6fa;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 28px 28px 18px 28px;
+            background: linear-gradient(120deg, #f8fffa 60%, #e0eaff 100%);
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 18px 6px;
+            }
+        }
+        
+        .panel {
+            background-color: #fff;
+            border-radius: 14px;
+            padding: 18px 16px;
+            box-shadow: 0 2px 12px rgba(108,99,255,0.07);
+            border: 1.5px solid #e0eaff;
+        }
+        
+        .panel-title {
+            font-size: 1.18rem;
+            margin-bottom: 14px;
+            padding-bottom: 7px;
+            border-bottom: 2px solid var(--primary);
+            gap: 8px;
+            color: var(--primary);
+            background: linear-gradient(90deg, #e0eaff 60%, #fff 100%);
+            border-radius: 7px 7px 0 0;
+        }
+        
+        .panel-title i {
+            color: var(--secondary);
+        }
+        
+        .file-upload {
+            background-color: #f1f2f6;
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 22px 8px;
+            text-align: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            background-color: #e0eaff;
+            transform: translateY(-1px) scale(1.01);
+        }
+        
+        .file-upload i {
+            font-size: 2.2rem;
+            margin-bottom: 9px;
+            color: var(--primary);
+        }
+        
+        .file-upload p {
+            font-size: 1.05rem;
+            margin-bottom: 9px;
+            color: #636e72;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            padding: 9px 22px;
+            font-size: 1.05rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(108,99,255,0.10);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 4px 14px rgba(0,184,148,0.13);
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+        }
+        
+        .btn:active {
+            transform: translateY(0.5px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), var(--warning));
+            color: #fff;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 13px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 1.01rem;
+            color: var(--primary);
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e0eaff;
+            background-color: #f8fffa;
+            color: #222;
+            font-size: 1.01rem;
+            transition: all 0.2s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background-color: #fff;
+        }
+        
+        textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .data-container {
+            max-height: 480px;
+            min-height: 120px;
+            overflow-y: auto;
+            border: 1.5px solid #e0eaff;
+            border-radius: 12px;
+            padding: 18px 12px;
+            background: linear-gradient(120deg, #f8fffa 60%, #e0eaff 100%);
+            box-shadow: 0 2px 12px rgba(108,99,255,0.07);
+            transition: max-height 0.3s;
+        }
+        
+        .data-item {
+            background: linear-gradient(100deg, #fff 80%, #e0eaff 100%);
+            border-radius: 12px;
+            padding: 16px 22px 12px 16px;
+            margin-bottom: 15px;
+            border-right: 5px solid var(--secondary);
+            box-shadow: 0 3px 12px rgba(0,184,148,0.08);
+            transition: box-shadow 0.2s, transform 0.2s;
+            font-size: 1.09rem;
+            position: relative;
+        }
+        
+        .data-item:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 6px 18px rgba(108,99,255,0.13);
+            background: linear-gradient(100deg, #f1f2f6 60%, #e0eaff 100%);
+        }
+        
+        .data-item h3 {
+            color: var(--secondary);
+            margin-bottom: 2px;
+            font-size: 1.13rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .data-item .date-label {
+            font-size: 1.01rem;
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-item .item-index {
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.08rem;
+            font-weight: bold;
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            box-shadow: 0 2px 6px rgba(108,99,255,0.13);
+            border: 2px solid #fff2;
+        }
+        
+        .data-item p {
+            font-size: 1.08rem;
+            line-height: 1.7;
+            margin: 0;
+            color: #222;
+            padding-right: 7px;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 22px 5px;
+            color: #b2bec3;
+            font-style: italic;
+            font-size: 1.05rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 18px;
+            right: 24px;
+            padding: 12px 22px;
+            border-radius: 9px;
+            background-color: var(--secondary);
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,184,148,0.13);
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            z-index: 1000;
+            font-size: 1.08rem;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 14px;
+            background-color: #f1f2f6;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: #636e72;
+        }
+        
+        .data-count {
+            background-color: var(--primary);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 15px;
+            font-size: 0.98rem;
+            margin-left: 7px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-code"></i> مدير بيانات JSON</h1>
+            <p>تطبيق لتحميل وعرض ملفات JSON، إضافة بيانات جديدة، وحفظ الملف المحدث</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title"><i class="fas fa-upload"></i> تحميل ملف JSON</h2>
+                
+                <div class="file-upload" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>اسحب وأسقط ملف JSON هنا أو انقر للاختيار</p>
+                    <input type="file" id="fileInput" accept=".json" style="display: none;">
+                    <button class="btn" id="browseBtn"><i class="fas fa-folder-open"></i> تصفح الملفات</button>
+                </div>
+                
+                <h2 class="panel-title"><i class="fas fa-plus-circle"></i> إضافة بيانات جديدة</h2>
+                
+                <div class="form-group">
+                    <label for="dateInput"><i class="fas fa-calendar-alt"></i> التاريخ</label>
+                    <input type="date" id="dateInput" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descriptionInput"><i class="fas fa-align-left"></i> الوصف</label>
+                    <textarea id="descriptionInput" placeholder="أدخل الوصف هنا..." required></textarea>
+                </div>
+                
+                <button class="btn" id="addBtn"><i class="fas fa-plus"></i> إضافة البيانات</button>
+                
+                <div class="btn-group">
+                    <button class="btn" id="saveBtn"><i class="fas fa-save"></i> حفظ الملف المحدث</button>
+                    <button class="btn btn-danger" id="resetBtn"><i class="fas fa-trash-alt"></i> مسح الكل</button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">
+                    <i class="fas fa-database"></i> البيانات المعروضة
+                    <span class="data-count" id="dataCount">0 عنصر</span>
+                </h2>
+                <div class="data-container" id="dataContainer">
+                    <div class="empty-message">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 7px;"></i>
+                        <p>لم يتم تحميل أي بيانات بعد. قم بتحميل ملف JSON أو إضافة بيانات جديدة.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>تم التطوير بواسطة ماهر العوفي</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">تمت العملية بنجاح!</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // العناصر الأساسية
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const dropArea = document.getElementById('dropArea');
+            const addBtn = document.getElementById('addBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const dateInput = document.getElementById('dateInput');
+            const descriptionInput = document.getElementById('descriptionInput');
+            const dataContainer = document.getElementById('dataContainer');
+            const dataCount = document.getElementById('dataCount');
+            const notification = document.getElementById('notification');
+            
+            // بيانات التطبيق
+            let jsonData = [];
+            
+            // تعيين تاريخ اليوم كقيمة افتراضية
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            
+            // أحداث زر التصفح
+            browseBtn.addEventListener('click', () => fileInput.click());
+            
+            // أحداث سحب وإفلات الملف
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
+            });
+            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
+            });
+            
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // حدث اختيار الملف
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+            
+            // معالجة تحميل الملف
+            function handleFileUpload(file) {
+                if (file.type !== 'application/json') {
+                    showNotification('الرجاء تحميل ملف JSON فقط', 'danger');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        jsonData = JSON.parse(e.target.result);
+                        showNotification('تم تحميل الملف بنجاح!', 'success');
+                        renderData();
+                    } catch (error) {
+                        showNotification('خطأ في تحليل ملف JSON', 'danger');
+                        console.error('JSON parse error:', error);
+                    }
+                };
+                
+                reader.onerror = () => {
+                    showNotification('حدث خطأ أثناء قراءة الملف', 'danger');
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // حدث إضافة بيانات جديدة
+            addBtn.addEventListener('click', () => {
+                const date = dateInput.value;
+                const description = descriptionInput.value.trim();
+                
+                if (!date || !description) {
+                    showNotification('الرجاء ملء جميع الحقول', 'warning');
+                    return;
+                }
+                
+                // إضافة البيانات الجديدة
+                jsonData.push({ date, description });
+                // فرز حسب التاريخ تنازلي (الأحدث أولاً)
+                jsonData.sort((a, b) => b.date.localeCompare(a.date));
+                showNotification('تمت إضافة البيانات بنجاح!', 'success');
+                renderData();
+                
+                // مسح حقلي الإدخال
+                descriptionInput.value = '';
+            });
+            
+            // حدث حفظ الملف المحدث
+            saveBtn.addEventListener('click', () => {
+                if (jsonData.length === 0) {
+                    showNotification('لا توجد بيانات لحفظها', 'warning');
+                    return;
+                }
+                
+                const dataStr = JSON.stringify(jsonData, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `updated_data_${new Date().toISOString().slice(0, 10)}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showNotification('تم تنزيل الملف المحدث بنجاح', 'success');
+            });
+            
+            // حدث مسح الكل
+            resetBtn.addEventListener('click', () => {
+                if (jsonData.length === 0) {
+                    showNotification('لا توجد بيانات لمسحها', 'warning');
+                    return;
+                }
+                
+                if (confirm('هل أنت متأكد من رغبتك في مسح جميع البيانات؟')) {
+                    jsonData = [];
+                    renderData();
+                    showNotification('تم مسح جميع البيانات', 'success');
+                }
+            });
+            
+            // عرض البيانات
+            function renderData() {
+                dataContainer.innerHTML = '';
+                
+                if (jsonData.length === 0) {
+                    dataContainer.innerHTML = `
+                        <div class="empty-message">
+                            <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 7px;"></i>
+                            <p>لا توجد بيانات لعرضها. قم بتحميل ملف JSON أو إضافة بيانات جديدة.</p>
+                        </div>
+                    `;
+                    dataCount.textContent = '0 عنصر';
+                    return;
+                }
+                
+                // فرز حسب التاريخ تنازلي (الأحدث أولاً)
+                jsonData.sort((a, b) => b.date.localeCompare(a.date));
+                
+                // عرض كل عنصر من البيانات مع رقم تسلسلي
+                jsonData.forEach((item, index) => {
+                    const dataItem = document.createElement('div');
+                    dataItem.className = 'data-item';
+                    dataItem.innerHTML = `
+                        <span class="item-index">${index + 1}</span>
+                        <h3>
+                            <i class="fas fa-calendar-check"></i>
+                            <span class="date-label">${item.date}</span>
+                        </h3>
+                        <p>${item.description}</p>
+                    `;
+                    dataContainer.appendChild(dataItem);
+                });
+                
+                dataCount.textContent = `${jsonData.length} عناصر`;
+            }
+            
+            // عرض الإشعارات
+            function showNotification(message, type = 'success') {
+                notification.textContent = message;
+                notification.className = 'notification';
+                
+                if (type === 'success') {
+                    notification.style.backgroundColor = '#2ecc71';
+                } else if (type === 'danger') {
+                    notification.style.backgroundColor = '#e74c3c';
+                } else if (type === 'warning') {
+                    notification.style.backgroundColor = '#f39c12';
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
